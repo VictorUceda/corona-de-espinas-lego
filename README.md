@@ -13,7 +13,7 @@ y verificada por ordenador pieza a pieza.
 <a href="https://github.com/VictorUceda/corona-de-espinas-lego/raw/main/dist/instrucciones.pdf"><img src="https://img.shields.io/badge/Descargar-Instrucciones%20PDF%20·%2079%20páginas-F5C518?style=for-the-badge&logo=adobeacrobatreader&logoColor=1d2227&labelColor=1d2227" alt="Descargar las instrucciones en PDF" height="44"></a>
 
 <a href="https://github.com/VictorUceda/corona-de-espinas-lego/raw/main/dist/build.mp4"><img src="https://img.shields.io/badge/Vídeo-Montaje%20completo%20·%2040%20s-2e3236?style=for-the-badge&logo=youtube&logoColor=white" alt="Ver el vídeo del montaje" height="30"></a>
-<a href="dist/visor_3D.html"><img src="https://img.shields.io/badge/Visor-3D-2e3236?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Visor 3D" height="30"></a>
+<a href="https://victoruceda.github.io/corona-de-espinas-lego/"><img src="https://img.shields.io/badge/Ver%20en%203D-Visor%20interactivo-2e3236?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Ver en 3D (visor interactivo)" height="30"></a>
 <a href="dist/wanted_list.xml"><img src="https://img.shields.io/badge/BrickLink-Wanted%20List-2e3236?style=for-the-badge" alt="Lista de BrickLink" height="30"></a>
 <a href="dist/model.mpd"><img src="https://img.shields.io/badge/LDraw-model.mpd-2e3236?style=for-the-badge" alt="Modelo LDraw" height="30"></a>
 
@@ -90,7 +90,7 @@ docs/        notas del libro, decisiones de diseño, técnicas de los sets ofici
 
 1. Descarga [`dist/instrucciones.pdf`](dist/instrucciones.pdf).
 2. En BrickLink: *Wanted List → Upload → BrickLink XML* con [`dist/wanted_list.xml`](dist/wanted_list.xml). Son 102 lotes y 4.937 piezas. La lista completa con IDs y colores está en [`dist/piezas.csv`](dist/piezas.csv).
-3. Para ver el modelo girando y paso a paso, abre [`dist/visor_3D.html`](dist/visor_3D.html) con doble clic (necesita conexión a internet para cargar three.js). El modelo LDraw [`dist/model.mpd`](dist/model.mpd) se abre en BrickLink Studio, LDCad o LeoCAD.
+3. Para ver el modelo girando y paso a paso, abre el **[visor 3D online](https://victoruceda.github.io/corona-de-espinas-lego/)**, o descarga [`dist/visor_3D.html`](dist/visor_3D.html) y ábrelo con doble clic (necesita conexión a internet para cargar three.js). El modelo LDraw [`dist/model.mpd`](dist/model.mpd) se abre en BrickLink Studio, LDCad o LeoCAD.
 
 ## Regenerar desde el código
 
