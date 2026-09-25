@@ -9956,7 +9956,10 @@ document.getElementById('npc').textContent = flat.length;
 // group label for "explosionar plantas"
 for (const p of flat) {
   const c = p.chain.join('>');
-  p.grp = c.includes('gajo_pb') ? 'pb' : c.includes('gajo_plantas') ? 'plantas' : c.includes('gajo_cubierta') || c.includes('espina') ? 'cubierta'
+  const z = -p.M.elements[13] / 8;                          // plates above the baseplate (LDraw -Y up)
+  const gj = c.includes('gajo_tipo') || c.includes('gajo_fin');
+  p.grp = gj ? (z < 8 ? 'pb' : z < 24 ? 'plantas' : 'cubierta')
+        : c.includes('gajo_pb') ? 'pb' : c.includes('gajo_plantas') ? 'plantas' : c.includes('gajo_cubierta') || c.includes('espina') ? 'cubierta'
         : c.includes('claustro') ? 'claustro' : c.includes('entrada') ? 'entrada' : 'base';
 }
 
@@ -9965,14 +9968,17 @@ const uniq = [...new Set(flat.map(p => p.part))];
 const firstEmbedded = order.findIndex(n => !isSub(n));
 let lib = '0 FILE __parts.ldr\n' + uniq.map(u => `1 16 0 0 0 1 0 0 0 1 0 0 0 1 ${u}`).join('\n') + '\n';
 { const idx = text.indexOf('0 FILE ' + order[firstEmbedded]); lib += text.slice(idx); }
-const loader = new LDrawLoader(); loader.smoothNormals = true;
+// smoothNormals in LDrawLoader costs ~30 s for this model; creased normals on the merged part geometry look the
+// same and take a fraction of a second.
+const loader = new LDrawLoader(); loader.smoothNormals = false;
 const libGroup = await new Promise((res, rej) => loader.parse(lib, res, rej));
 const geo = {};
 libGroup.children.forEach((ch, i) => {
   const gs = [];
   ch.updateMatrixWorld(true);
   ch.traverse(o => { if (o.isMesh) { const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); g.clearGroups(); gs.push(g.index ? g.toNonIndexed() : g); } });
-  geo[uniq[i]] = gs.length > 1 ? BGU.mergeGeometries(gs) : gs[0];
+  const merged = gs.length > 1 ? BGU.mergeGeometries(gs) : gs[0];
+  geo[uniq[i]] = BGU.toCreasedNormals(merged, Math.PI / 6);
 });
 
 // ---------------------------------------------------------------- instanced meshes per (part, colour)
