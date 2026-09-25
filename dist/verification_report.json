@@ -1,0 +1,354 @@
+{
+ "model": "model.mpd",
+ "n_parts": 4937,
+ "tolerance_ldu": 0.1,
+ "a_connectivity": {
+  "n_connections": 16734,
+  "n_part_pairs": 6153,
+  "components": 1,
+  "isolated": [],
+  "ok": true
+ },
+ "b_collisions": {
+  "n": 0,
+  "pairs": [],
+  "ok": true
+ },
+ "c_buildability": {
+  "fails": [],
+  "n_fails": 0,
+  "ok": true,
+  "order": "base (grow) -> anillo.ldr (sub-assembly placed as one unit) -> claustro_pilares.ldr (grow) -> claustro_plaza.ldr (sub-assembly placed as one unit) -> claustro_cupula.ldr (grow) -> entrada.ldr (grow)"
+ },
+ "gajo_build_order": [
+  "J1L_support",
+  "J1L_jumper",
+  "GiGoL",
+  "sl4L",
+  "sl3a",
+  "sl2a",
+  "sl2b",
+  "sl4R",
+  "sl4b",
+  "sl3b",
+  "sl5a",
+  "sl5L",
+  "sl5b",
+  "sl6L",
+  "sl6R",
+  "sl6b",
+  "sl7a",
+  "GiGoR",
+  "J1R_clamp",
+  "J1R_round",
+  "GiR4",
+  "GiR3",
+  "GiR2",
+  "sl7b",
+  "P1_band1b",
+  "sp8a",
+  "sp8b",
+  "sp9a",
+  "sp9b",
+  "sp10in",
+  "sp10out",
+  "P2_band1b",
+  "P1_back4",
+  "P1_back3",
+  "P1_shut0",
+  "P1_tie",
+  "J2L_base",
+  "strut_l",
+  "pb_lat",
+  "J2R_top",
+  "trunk",
+  "pb_lat_r",
+  "P1_soffit-0.5",
+  "P1_soffit0.5",
+  "P1_soffit1.5",
+  "P1_tip",
+  "P1_shut1_-2",
+  "P1_shut0l",
+  "P1_tie_l",
+  "P1_soffit-1.5",
+  "P1_fin0",
+  "P1_fin1",
+  "P1_shut1_0",
+  "P1_fin2",
+  "P1_shut2_-2",
+  "P1_shut2_0",
+  "sp13a",
+  "sp13b",
+  "P2_soffit-1.5",
+  "P2_soffit-0.5",
+  "P2_soffit0.5",
+  "P2_soffit1.5",
+  "P2_tie",
+  "P2_tie_l",
+  "sp14a",
+  "sp14b",
+  "P2_tip",
+  "P2_shut0",
+  "P2_shut0l",
+  "P2_fin0",
+  "sp15in",
+  "sp15out",
+  "P2_fin1",
+  "P2_shut1_-2",
+  "P2_shut1_0",
+  "P2_back3",
+  "P2_fin2",
+  "P2_shut2_-2",
+  "P2_shut2_0",
+  "P2_back4",
+  "P3_band1b",
+  "sp18a",
+  "sp18b",
+  "cf18",
+  "P3_soffit-1.5",
+  "P3_soffit-0.5",
+  "P3_soffit0.5",
+  "P3_soffit1.5",
+  "P3_tie",
+  "P3_tie_l",
+  "sp19a",
+  "sp19b",
+  "cf19",
+  "P3_tip",
+  "P3_shut0",
+  "P3_shut0l",
+  "sp20in",
+  "sp20out",
+  "cf20",
+  "P3_lean-1.5",
+  "P3_lean-0.5",
+  "P3_lean0.5",
+  "P3_lean1.5",
+  "P3_back3",
+  "P3_back4",
+  "P3_back5",
+  "sp23a",
+  "sp23b",
+  "corn_b",
+  "roofbase_o",
+  "roofbase_m",
+  "roofbase_i",
+  "gutter-1.5",
+  "gutter-0.5",
+  "gutter0.5",
+  "gutter1.5",
+  "inner_walk",
+  "roofo1_-0.5",
+  "roofo1_0.5",
+  "roofo1_1.5",
+  "walk_o",
+  "roofi1_-0.5",
+  "roofi1_0.5",
+  "ridge_fill1",
+  "roofo2_-0.5",
+  "roofo2_0.5",
+  "roofo2_1.5",
+  "ridge_fill1r",
+  "roofi2_-0.5",
+  "roofi2_0.5",
+  "ridge_fill2",
+  "ridge",
+  "ridge_r",
+  "spk_jmp",
+  "spk_pl",
+  "rim_o-0.5",
+  "rim_o0.5",
+  "rim_o1.5",
+  "rim_i-0.5",
+  "rim_i0.5",
+  "spk_cone0",
+  "spk_cone1.5",
+  "spk0",
+  "spk1.5"
+ ],
+ "c_gajo_subassembly": {
+  "n_parts": 144,
+  "fails": [],
+  "ok": true,
+  "placed_resting_then_locked": [
+   "P2_soffit-1.5",
+   "P2_soffit-0.5",
+   "P2_soffit0.5",
+   "P2_soffit1.5",
+   "P3_soffit-1.5",
+   "P3_soffit-0.5",
+   "P3_soffit0.5",
+   "P3_soffit1.5"
+  ]
+ },
+ "d_stability": {
+  "com_ldu": [
+   0.6,
+   -101.0,
+   -5.2
+  ],
+  "com_inside_support": true,
+  "single_stud_cantilevers": [],
+  "n_single_stud_cantilevers": 0,
+  "ok": true
+ },
+ "e_strength": {
+  "k_min": 8,
+  "definition": "connections in the plane + parts crossing the plane",
+  "weakest_cut": {
+   "y_ldu": -280,
+   "z_plates": 35.0,
+   "connections": 0,
+   "crossing_parts": 55
+  },
+  "per_plane": {
+   "1": {
+    "connections": 1588,
+    "crossing": 115
+   },
+   "2": {
+    "connections": 203,
+    "crossing": 69
+   },
+   "3": {
+    "connections": 453,
+    "crossing": 218
+   },
+   "4": {
+    "connections": 429,
+    "crossing": 246
+   },
+   "5": {
+    "connections": 668,
+    "crossing": 241
+   },
+   "6": {
+    "connections": 414,
+    "crossing": 213
+   },
+   "7": {
+    "connections": 383,
+    "crossing": 193
+   },
+   "8": {
+    "connections": 644,
+    "crossing": 136
+   },
+   "9": {
+    "connections": 662,
+    "crossing": 275
+   },
+   "10": {
+    "connections": 718,
+    "crossing": 246
+   },
+   "11": {
+    "connections": 303,
+    "crossing": 162
+   },
+   "12": {
+    "connections": 245,
+    "crossing": 189
+   },
+   "13": {
+    "connections": 494,
+    "crossing": 105
+   },
+   "14": {
+    "connections": 704,
+    "crossing": 218
+   },
+   "15": {
+    "connections": 809,
+    "crossing": 282
+   },
+   "16": {
+    "connections": 450,
+    "crossing": 177
+   },
+   "17": {
+    "connections": 453,
+    "crossing": 214
+   },
+   "18": {
+    "connections": 494,
+    "crossing": 161
+   },
+   "19": {
+    "connections": 670,
+    "crossing": 239
+   },
+   "20": {
+    "connections": 732,
+    "crossing": 267
+   },
+   "21": {
+    "connections": 218,
+    "crossing": 147
+   },
+   "22": {
+    "connections": 102,
+    "crossing": 230
+   },
+   "23": {
+    "connections": 494,
+    "crossing": 229
+   },
+   "24": {
+    "connections": 662,
+    "crossing": 201
+   },
+   "25": {
+    "connections": 689,
+    "crossing": 117
+   },
+   "26": {
+    "connections": 11,
+    "crossing": 314
+   },
+   "27": {
+    "connections": 11,
+    "crossing": 202
+   },
+   "28": {
+    "connections": 349,
+    "crossing": 202
+   },
+   "29": {
+    "connections": 9,
+    "crossing": 173
+   },
+   "30": {
+    "connections": 9,
+    "crossing": 173
+   },
+   "31": {
+    "connections": 205,
+    "crossing": 173
+   },
+   "32": {
+    "connections": 233,
+    "crossing": 59
+   },
+   "33": {
+    "connections": 55,
+    "crossing": 199
+   },
+   "34": {
+    "connections": 0,
+    "crossing": 55
+   },
+   "35": {
+    "connections": 0,
+    "crossing": 55
+   },
+   "36": {
+    "connections": 55,
+    "crossing": 110
+   }
+  },
+  "ok": true
+ },
+ "ok": true,
+ "seconds": 17.6
+}

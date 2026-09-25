@@ -1,0 +1,17 @@
+{
+  "name": "corona-de-espinas-render",
+  "version": "1.0.0",
+  "description": "three.js renders, step images, PDF and video frames for the Corona de Espinas LEGO model",
+  "scripts": {
+    "steps": "node render_steps.mjs",
+    "pdf": "node pdf.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.49.1",
+    "three": "^0.170.0"
+  },
+  "private": true
+}

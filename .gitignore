@@ -1,0 +1,21 @@
+# local libraries (see README: LDraw complete.zip + LDCad Shadow Library)
+tools
+# caches and intermediates
+.cache/
+build/
+work/
+__pycache__/
+*.pyc
+.venv/
+render/node_modules
+.DS_Store
+# reference material that is not redistributable (catalogued in refs/index.json, re-downloadable)
+refs/*
+!refs/index.json
+!refs/geo/
+refs/texts/*
+!refs/texts/
+!refs/texts/boe_*
+# secrets
+.rebrickable_key
+.env

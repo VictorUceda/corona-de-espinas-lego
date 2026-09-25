@@ -1,0 +1,12 @@
+numpy>=2.0
+trimesh>=4.0
+python-fcl>=0.7
+networkx>=3.0
+shapely>=2.0
+requests>=2.31
+# research scripts (LiDAR, ortho, PDF study)
+scipy>=1.11
+matplotlib>=3.8
+laspy[lazrs]>=2.5
+pillow>=10.0
+pymupdf>=1.24

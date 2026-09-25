@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<consulta_coordenadas xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.catastro.meh.es/">
+  <control>
+    <cucoor>1</cucoor>
+    <cuerr>0</cuerr>
+  </control>
+  <coordenadas>
+    <coord>
+      <pc>
+        <pc1>7773607</pc1>
+        <pc2>VK3777D</pc2>
+      </pc>
+      <geo>
+        <xcen>437677.5</xcen>
+        <ycen>4476982.68</ycen>
+        <srs>EPSG:25830</srs>
+      </geo>
+      <ldt>CL PINTOR EL GRECO 4 INST. CONSERV. Y RESTAUR. MADRID (MADRID)</ldt>
+    </coord>
+  </coordenadas>
+</consulta_coordenadas>

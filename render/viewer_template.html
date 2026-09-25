@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corona de Espinas — visor LEGO</title>
+<style>
+:root{--bg:#a9d9ef;--ink:#10212f;--panel:rgba(255,255,255,.86)}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font:14px/1.3 system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:var(--ink)}
+canvas{display:block}
+#ui{position:fixed;left:12px;right:12px;bottom:12px;display:flex;gap:10px;align-items:center;background:var(--panel);padding:8px 12px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.15);flex-wrap:wrap}
+#ui button{border:0;background:#10212f;color:#fff;border-radius:8px;padding:6px 12px;font-weight:600;cursor:pointer}
+#ui button.on{background:#e8a200;color:#10212f}
+#ui input[type=range]{flex:1;min-width:160px}
+#lbl{min-width:190px;font-weight:600}
+#title{position:fixed;left:16px;top:12px;font-weight:800;font-size:18px;letter-spacing:-.3px}
+#load{position:fixed;inset:0;display:grid;place-items:center;font-weight:700;font-size:18px}
+.rec #ui,.rec #title,.rec #load{display:none}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<div id="title">Corona de Espinas · LEGO 1:250 · <span id="npc"></span> piezas</div>
+<div id="load">Cargando modelo…</div>
+<div id="ui">
+  <button id="play">▶︎ Play</button>
+  <input id="step" type="range" min="0" max="1" value="0">
+  <span id="lbl">—</span>
+  <label>Velocidad <select id="speed"><option>0.5</option><option selected>1</option><option>2</option><option>4</option><option>8</option><option>16</option></select></label>
+  <button id="explode">Explosionar plantas</button>
+  <button id="turn">Turntable 360°</button>
+  <button id="all">Ver completo</button>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as BGU from 'three/addons/utils/BufferGeometryUtils.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const ANIM = /*ANIM_DATA*/null;
+const Q = new URLSearchParams(location.search);
+const REC = Q.get('record') === '1';
+const MODE = Q.get('mode') || 'build';
+if (REC) document.body.classList.add('rec');
+const W = +Q.get('w') || innerWidth, H = +Q.get('h') || innerHeight;
+
+// ---------------------------------------------------------------- renderer / scene
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC });
+renderer.setPixelRatio(REC ? 1 : Math.min(devicePixelRatio, 2));
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const BG = new THREE.Color(Q.get('bg') || '#a9d9ef');
+scene.background = BG;
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.4;
+const hemi = new THREE.HemisphereLight(0xffffff, 0x7f97a8, 0.4); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff6ea, 1.35);
+sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.00025; sun.shadow.normalBias = 0.6; sun.shadow.radius = 6;
+scene.add(sun); scene.add(sun.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), new THREE.ShadowMaterial({ opacity: 0.34 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const camera = new THREE.PerspectiveCamera(+Q.get('fov') || 32, W / H, 5, 60000);
+const controls = REC ? null : new OrbitControls(camera, renderer.domElement);
+
+// ---------------------------------------------------------------- LDraw colours used by the model (LDConfig.ldr)
+const COL = { 19: ['#E4CD9E', 1], 70: ['#582A12', 1], 288: ['#184632', 1], 2: ['#237841', 1], 15: ['#FFFFFF', 1], 40: ['#635F52', .55], 47: ['#FCFCFC', .35], 71: ['#A0A5A9', 1], 72: ['#6C6E68', 1], 0: ['#1B2A34', 1] };
+const mats = {};
+function material(code) {
+  if (!mats[code]) {
+    const [hex, a] = COL[code] || ['#ff00ff', 1];
+    mats[code] = new THREE.MeshStandardMaterial({ color: new THREE.Color(hex), roughness: a < 1 ? .08 : .32, metalness: 0,
+      transparent: a < 1, opacity: a, envMapIntensity: .08 });
+  }
+  return mats[code];
+}
+
+// ---------------------------------------------------------------- flatten the packed MPD (same depth-first order as verify.py)
+const text = await (await fetch(Q.get('model') || 'model_packed.mpd')).text();
+const files = {}; const order = []; let cur = null;
+for (const line of text.split(/\r?\n/)) {
+  if (line.startsWith('0 FILE ')) { cur = line.slice(7).trim().toLowerCase(); files[cur] = []; order.push(cur); continue; }
+  if (line.startsWith('0 NOFILE')) { cur = null; continue; }
+  if (cur) files[cur].push(line);
+}
+const isSub = n => n.endsWith('.ldr');
+const flat = [];
+let gajoCount = -1;
+function walk(name, M, chain) {
+  for (const l of files[name]) {
+    const t = l.trim().split(/\s+/);
+    if (t[0] !== '1' || t.length < 15) continue;
+    const v = t.slice(2, 14).map(Number);
+    const m = new THREE.Matrix4().set(v[3], v[4], v[5], v[0], v[6], v[7], v[8], v[1], v[9], v[10], v[11], v[2], 0, 0, 0, 1);
+    const Mw = M.clone().multiply(m);
+    const sub = t.slice(14).join(' ').toLowerCase();
+    if (isSub(sub) && files[sub]) { if (sub === 'gajo_tipo.ldr' || sub === 'gajo_fin.ldr') gajoCount++; walk(sub, Mw, chain.concat(sub)); }
+    else flat.push({ part: sub.replace(/\\/g, '/'), color: +t[1], M: Mw, chain, gi: (chain.includes('gajo_tipo.ldr') || chain.includes('gajo_fin.ldr')) ? gajoCount : -1 });
+  }
+}
+walk(order[0], new THREE.Matrix4(), [order[0]]);
+document.getElementById('npc').textContent = flat.length;
+
+// group label for "explosionar plantas"
+for (const p of flat) {
+  const c = p.chain.join('>');
+  p.grp = c.includes('gajo_pb') ? 'pb' : c.includes('gajo_plantas') ? 'plantas' : c.includes('gajo_cubierta') || c.includes('espina') ? 'cubierta'
+        : c.includes('claustro') ? 'claustro' : c.includes('entrada') ? 'entrada' : 'base';
+}
+
+// ---------------------------------------------------------------- unique part geometries via LDrawLoader (packed library)
+const uniq = [...new Set(flat.map(p => p.part))];
+const firstEmbedded = order.findIndex(n => !isSub(n));
+let lib = '0 FILE __parts.ldr\n' + uniq.map(u => `1 16 0 0 0 1 0 0 0 1 0 0 0 1 ${u}`).join('\n') + '\n';
+{ const idx = text.indexOf('0 FILE ' + order[firstEmbedded]); lib += text.slice(idx); }
+const loader = new LDrawLoader(); loader.smoothNormals = true;
+const libGroup = await new Promise((res, rej) => loader.parse(lib, res, rej));
+const geo = {};
+libGroup.children.forEach((ch, i) => {
+  const gs = [];
+  ch.updateMatrixWorld(true);
+  ch.traverse(o => { if (o.isMesh) { const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); g.clearGroups(); gs.push(g.index ? g.toNonIndexed() : g); } });
+  geo[uniq[i]] = gs.length > 1 ? BGU.mergeGeometries(gs) : gs[0];
+});
+
+// ---------------------------------------------------------------- instanced meshes per (part, colour)
+const root = new THREE.Group(); root.rotation.x = Math.PI; scene.add(root);   // LDraw -Y up
+const buckets = {};
+flat.forEach((p, i) => { const k = p.part + '|' + p.color; (buckets[k] ||= []).push(i); });
+const inst = [];
+for (const [k, ix] of Object.entries(buckets)) {
+  const [part, color] = k.split('|');
+  const im = new THREE.InstancedMesh(geo[part], material(+color), ix.length);
+  im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false;
+  ix.forEach((i, j) => { flat[i].im = im; flat[i].slot = j; im.setMatrixAt(j, flat[i].M); });
+  root.add(im); inst.push(im);
+}
+// bounds
+const box = new THREE.Box3();
+for (const p of flat) box.expandByPoint(new THREE.Vector3().setFromMatrixPosition(p.M));
+const size = box.getSize(new THREE.Vector3()), mid = box.getCenter(new THREE.Vector3());
+const R = Math.max(size.x, size.z) / 2;             // ~ 450 LDU
+const TOP = size.y;
+sun.position.set(R * 1.5, R * 2.2, R * 1.1); sun.target.position.set(0, 0, 0);
+Object.assign(sun.shadow.camera, { left: -R * 1.6, right: R * 1.6, top: R * 1.6, bottom: -R * 1.6, near: 10, far: R * 8 });
+sun.shadow.camera.updateProjectionMatrix();
+ground.position.y = -1;
+
+// ---------------------------------------------------------------- timeline
+// Every part i has: start s[i] (seconds, film/build time), flight duration fl[i], and optionally a sub-assembly
+// group: parts first fly to their place on the LIFTED group, then the whole group drops (gajos, plaza).
+const ORD = ANIM ? ANIM.order : flat.map((_, i) => i);
+const STEPS = ANIM ? ANIM.steps : [{ label: 'Modelo', start: 0, end: flat.length }];
+const N = flat.length, FPS = 30;
+const rank = new Int32Array(N); ORD.forEach((i, r) => rank[i] = r);
+const rnd = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+const S0 = new Float32Array(N), FL = new Float32Array(N).fill(0.55), GRP = new Int16Array(N).fill(-1);
+const groups = [];                  // {drop, dur, lift: Vector3 (LDraw coords)}
+const isSpike = p => p.part === '24482.dat' || p.part === '85861.dat' || p.part === '4589.dat';
+const explodeOff = { base: 0, pb: 0, plantas: 90, cubierta: 190, claustro: 40, entrada: 0 };
+const lerp = (a, b, u) => a + (b - a) * u, smooth = u => u * u * (3 - 2 * u), clamp = u => Math.max(0, Math.min(1, u));
+
+function scheduleLinear(gap) {       // interactive viewer: sequential, no sub-assemblies
+  groups.length = 0; GRP.fill(-1);
+  for (let i = 0; i < N; i++) { S0[i] = rank[i] * gap; FL[i] = 0.55; }
+}
+// cinematic schedule: base rain -> gajos assembled in the air & dropped (speed ramp) -> claustro -> entrada ->
+// crowning (spikes wave, slow motion). K = key times in film seconds.
+function scheduleCinematic(K) {
+  groups.length = 0; GRP.fill(-1);
+  const byRank = [...ORD];
+  const stepOf = new Int32Array(N); STEPS.forEach((st, k) => { for (let r = st.start; r < st.end; r++) stepOf[ORD[r]] = k; });
+  const lab = i => STEPS[stepOf[i]].label;
+  const base = byRank.filter(i => lab(i).startsWith('Base'));
+  base.forEach((i, k) => { S0[i] = K.base0 + (K.base1 - K.base0) * Math.pow(k / base.length, 0.8); FL[i] = K.baseFall; });
+  // gajos in build order (counter-clockwise), spikes held back for the crowning
+  const gOrder = []; for (const i of byRank) if (flat[i].gi >= 0 && !gOrder.includes(flat[i].gi)) gOrder.push(flat[i].gi);
+  const spikes = [];
+  gOrder.forEach((gi, q) => {
+    const u = q / (gOrder.length - 1);
+    const drop = q === 0 ? K.g0drop : K.g0drop + (K.gEnd - K.g0drop) * Math.sqrt((q) / (gOrder.length - 1));
+    const asm = q === 0 ? K.g0asm : Math.max(K.gMinAsm, K.gAsm * Math.pow(1 - u, 1.6));
+    const members = byRank.filter(i => flat[i].gi === gi);
+    const parts = members.filter(i => !isSpike(flat[i])); spikes.push(...members.filter(i => isSpike(flat[i])));
+    // lift: up + radially outward (LDraw: -Y up)
+    const c = new THREE.Vector3(); parts.forEach(i => c.add(new THREE.Vector3().setFromMatrixPosition(flat[i].M))); c.divideScalar(parts.length);
+    const rad = new THREE.Vector3(c.x, 0, c.z).normalize();
+    groups.push({ drop, dur: q === 0 ? 0.7 : 0.38, lift: new THREE.Vector3(rad.x * 120, -(q === 0 ? 330 : 260), rad.z * 120) });
+    const gidx = groups.length - 1;
+    parts.forEach((i, k) => { GRP[i] = gidx; S0[i] = drop - asm + asm * 0.85 * (k / parts.length) - (q === 0 ? K.g0fall : 0.28); FL[i] = q === 0 ? K.g0fall : 0.28; });
+  });
+  // claustro: pilares rain, plaza assembled in the air and dropped
+  const pil = byRank.filter(i => lab(i) === 'Claustro: pilares'), pla = byRank.filter(i => lab(i) === 'Claustro: plaza');
+  pil.forEach((i, k) => { S0[i] = K.cl0 + 0.5 * k / pil.length; FL[i] = 0.35; });
+  groups.push({ drop: K.plazaDrop, dur: 0.5, lift: new THREE.Vector3(0, -320, 0) });
+  pla.forEach((i, k) => { GRP[i] = groups.length - 1; S0[i] = K.cl0 + 0.2 + (K.plazaDrop - K.cl0 - 0.6) * k / pla.length; FL[i] = 0.3; });
+  const cup = byRank.filter(i => lab(i) === 'Cúpula');            // lantern top + star dome, right after the plaza
+  cup.forEach((i, k) => { S0[i] = K.plazaDrop + 0.45 + 0.35 * k; FL[i] = 0.55; });
+  const ent = byRank.filter(i => lab(i) === 'Entrada' && !isSpike(flat[i]));
+  spikes.push(...byRank.filter(i => lab(i) === 'Entrada' && isSpike(flat[i])));
+  ent.forEach((i, k) => { S0[i] = K.ent0 + (K.ent1 - K.ent0) * k / ent.length; FL[i] = 0.35; });
+  // crowning: spikes (+ their round bases) fall as a wave around the ring, slow motion
+  const az = i => { const v = new THREE.Vector3().setFromMatrixPosition(flat[i].M); return (Math.atan2(v.x, -v.z) + Math.PI * 2 + 0.6) % (Math.PI * 2); };
+  spikes.sort((a, b) => az(a) - az(b) || (flat[a].part === '24482.dat' ? 1 : -1));
+  spikes.forEach((i, k) => { S0[i] = K.sp0 + (K.sp1 - K.sp0) * k / spikes.length + (flat[i].part === '24482.dat' ? 0.08 : 0); FL[i] = K.spFall; });
+}
+let explode = 0;
+const tmpQ = new THREE.Quaternion(), axis = new THREE.Vector3(), ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+const easeOut = u => 1 - Math.pow(1 - u, 3);
+function landing(u) {                // height factor during a flight (1 -> 0) with a small bounce at touchdown
+  if (u < 0.8) return 1 - easeOut(u / 0.8);
+  const b = (u - 0.8) / 0.2; return 0.04 * Math.sin(Math.PI * b) * (1 - b);
+}
+const M = new THREE.Matrix4(), T1 = new THREE.Matrix4(), R1 = new THREE.Matrix4(), P0 = new THREE.Vector3();
+function pose(t) {
+  for (let i = 0; i < N; i++) {
+    const p = flat[i], u = (t - S0[i]) / FL[i];
+    if (u <= 0) { p.im.setMatrixAt(p.slot, ZERO); continue; }
+    let ox = 0, oy = -explode * (explodeOff[p.grp] || 0), oz = 0;
+    const g = GRP[i] >= 0 ? groups[GRP[i]] : null;
+    if (g) { const v = clamp((t - g.drop) / g.dur); const f = v >= 1 ? 0 : landing(v); ox += g.lift.x * f; oy += g.lift.y * f; oz += g.lift.z * f; }
+    if (u >= 1 && ox === 0 && oy === 0 && oz === 0) { p.im.setMatrixAt(p.slot, p.M); continue; }
+    const h = u >= 1 ? 0 : landing(u);
+    P0.setFromMatrixPosition(p.M);
+    const lift = (230 + 230 * rnd(i, 1)) * h, drift = 70 * h;
+    axis.set(rnd(i, 3) - .5, rnd(i, 7) - .5, rnd(i, 4) - .5).normalize();
+    tmpQ.setFromAxisAngle(axis, (rnd(i, 2) - .5) * 2.2 * h);
+    R1.makeRotationFromQuaternion(tmpQ);
+    M.copy(p.M); M.setPosition(0, 0, 0); M.premultiply(R1);
+    M.setPosition(P0.x + ox + (rnd(i, 5) - .5) * drift, P0.y + oy - lift, P0.z + oz + (rnd(i, 6) - .5) * drift);
+    p.im.setMatrixAt(p.slot, M);
+  }
+  for (const im of inst) im.instanceMatrix.needsUpdate = true;
+}
+
+// ---------------------------------------------------------------- camera (Catmull-Rom through keyframes)
+function orbit(az, el, dist, target = new THREE.Vector3(0, TOP * 0.35, 0)) {
+  const a = THREE.MathUtils.degToRad(az), e = THREE.MathUtils.degToRad(el);
+  camera.position.set(target.x + dist * Math.sin(a) * Math.cos(e), target.y + dist * Math.sin(e), target.z + dist * Math.cos(a) * Math.cos(e));
+  camera.lookAt(target);
+}
+function camPath(keys, t) {          // keys: [t, az, el, dist, ty] or [t, az, el, dist, tx, ty, tz]
+  let k = 0; while (k < keys.length - 2 && t > keys[k + 1][0]) k++;
+  const a = keys[Math.max(0, k - 1)], b = keys[k], c = keys[k + 1], d = keys[Math.min(keys.length - 1, k + 2)];
+  const u = smooth(clamp((t - b[0]) / (c[0] - b[0])));
+  const cr = (p0, p1, p2, p3, x) => 0.5 * ((2 * p1) + (-p0 + p2) * x + (2 * p0 - 5 * p1 + 4 * p2 - p3) * x * x + (-p0 + 3 * p1 - 3 * p2 + p3) * x * x * x);
+  const ex = k => k.length === 5 ? [k[0], k[1], k[2], k[3], 0, k[4], 0] : k;
+  const [A, B, C, D] = [a, b, c, d].map(ex);
+  const v = [1, 2, 3, 4, 5, 6].map(j => cr(A[j], B[j], C[j], D[j], u));
+  orbit(v[0], v[1], v[2], new THREE.Vector3(v[3], v[4], v[5]));
+}
+
+// ---------------------------------------------------------------- record-mode scenarios (deterministic: frame -> state)
+const SC = {
+  build: { seconds: +Q.get('seconds') || 40, setup() {
+      scheduleCinematic({ base0: 0.3, base1: 5, baseFall: 0.6, g0asm: 5, g0fall: 0.6, g0drop: 11.5, gAsm: 3, gMinAsm: 0.9, gEnd: 27,
+        gMinAsm2: 0, cl0: 27.5, plazaDrop: 31, ent0: 31.5, ent1: 33.5, sp0: 33.5, sp1: 37.5, spFall: 0.9 }); },
+    frame(t) { camPath(this.cam, t); pose(t); },
+    cam: [[0, 205, 50, 1900, 0, 60, 0], [5, 198, 38, 1800, 20, 200, -150], [8, 180, 24, 1750, 40, 330, -250], [11.5, 185, 28, 1750, 30, 260, -200],
+          [15, 240, 34, 2250, 0, 230, 0], [27, 360, 36, 2350, 0, 220, 0], [31, 395, 28, 2150, 0, 170, 0], [35.5, 430, 18, 1950, 0, 190, 0],
+          [40, 470, 22, 2150, 0, 150, 0]] },
+  turntable: { seconds: +Q.get('seconds') || 12, setup() { scheduleLinear(0); for (let i = 0; i < N; i++) S0[i] = -10; },
+    frame(t) { pose(100); orbit(200 + 360 * t / this.seconds, 24, R * 3.1); } },
+  // wow (square, ~16 s): slow first gajo, hard acceleration through the 27 repeats, plaza drop, entrance,
+  // slow-motion crowning, hero orbit.
+  wow: { seconds: +Q.get('seconds') || 16, setup() {
+      scheduleCinematic({ base0: 0.0, base1: 1.4, baseFall: 0.45, g0asm: 2.2, g0fall: 0.5, g0drop: 4.0, gAsm: 1.5, gMinAsm: 0.35, gEnd: 8.6,
+        cl0: 8.4, plazaDrop: 9.9, ent0: 9.8, ent1: 10.8, sp0: 10.9, sp1: 13.6, spFall: 0.8 }); },
+    frame(t) { camPath(this.cam, t); pose(t); },
+    cam: [[0, 205, 58, 1500, 0, 0, 0], [1.4, 192, 44, 1150, 40, 80, -220], [2.4, 172, 18, 980, 90, 520, -450], [4.0, 176, 26, 900, 70, 200, -330],
+          [6.0, 232, 38, 1500, 0, 120, 0], [8.6, 300, 42, 1750, 0, 110, 0], [10.6, 375, 30, 1550, 0, 120, 0], [13.6, 440, 12, 1050, 0, 270, 0],
+          [16, 505, 20, 1650, 0, 130, 0]] },
+};
+function render() { renderer.render(scene, camera); }
+
+if (REC) {
+  const sc = SC[MODE]; sc.setup();
+  const SUB = +(Q.get('blur') ?? 8), SHUTTER = 0.55;            // motion blur: SUB subframes over half a frame
+  const rtA = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType, samples: 4 });
+  const acc = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
+    uniforms: { tex: { value: null }, w: { value: 1 } }, transparent: true, depthTest: false, depthWrite: false,
+    blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor, blendEquation: THREE.AddEquation,
+    vertexShader: 'varying vec2 v; void main(){ v = uv; gl_Position = vec4(position.xy, 0., 1.); }',
+    fragmentShader: 'uniform sampler2D tex; uniform float w; varying vec2 v; void main(){ gl_FragColor = vec4(texture2D(tex, v).rgb * w, w); }' }));
+  const qs = new THREE.Scene(); qs.add(quad); const qc = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const outMat = new THREE.MeshBasicMaterial({ map: acc.texture, depthTest: false }); const outQ = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), outMat);
+  const os = new THREE.Scene(); os.add(outQ);
+  window.__frames = Math.round(sc.seconds * FPS);
+  window.__frame = f => {
+    if (SUB <= 1) { sc.frame(f / FPS); render(); return true; }
+    renderer.setRenderTarget(acc); renderer.setClearColor(0x000000, 0); renderer.clear();
+    for (let k = 0; k < SUB; k++) {
+      sc.frame((f + (k / SUB - 0.5) * SHUTTER) / FPS);
+      renderer.setRenderTarget(rtA); renderer.render(scene, camera);
+      quad.material.uniforms.tex.value = rtA.texture; quad.material.uniforms.w.value = 1 / SUB;
+      renderer.setRenderTarget(acc); renderer.autoClear = false; renderer.render(qs, qc); renderer.autoClear = true;
+    }
+    renderer.setRenderTarget(null); renderer.render(os, qc); return true;
+  };
+  window.__landTimes = () => ({ parts: Array.from(S0).map((s, i) => s + FL[i]), drops: groups.map(g => g.drop + g.dur * 0.8) });
+  window.__ready = true;
+} else {
+  // ---------------------------------------------------------------- interactive viewer
+  document.getElementById('load').remove();
+  const GAP = 0.05;                                        // build-seconds per part at speed 1
+  scheduleLinear(GAP);
+  const startOf = r => r * GAP, FALL = 0.55;
+  const endT = startOf(N) + FALL;
+  let t = 0, playing = false, speed = 1, turn = false, exT = 0;
+  const stepEl = document.getElementById('step'), lbl = document.getElementById('lbl');
+  stepEl.max = STEPS.length;
+  const stepAt = tt => { let k = 0; while (k < STEPS.length && startOf(STEPS[k].start) <= tt) k++; return k; };
+  const setLbl = () => { const k = Math.min(stepAt(t), STEPS.length); lbl.textContent = k ? `Paso ${k}/${STEPS.length} · ${STEPS[k - 1].label}` : 'Inicio'; stepEl.value = k; };
+  document.getElementById('play').onclick = e => { playing = !playing; if (playing && t >= endT) t = 0; e.target.textContent = playing ? '❚❚ Pausa' : '▶︎ Play'; };
+  stepEl.oninput = () => { const k = +stepEl.value; t = k ? startOf(STEPS[k - 1].end) + FALL : 0; setLbl(); };
+  document.getElementById('speed').onchange = e => speed = +e.target.value;
+  document.getElementById('explode').onclick = e => { exT = exT ? 0 : 1; e.target.classList.toggle('on', !!exT); };
+  document.getElementById('turn').onclick = e => { turn = !turn; e.target.classList.toggle('on', turn); controls.autoRotate = turn; controls.autoRotateSpeed = 4; };
+  document.getElementById('all').onclick = () => { t = endT; setLbl(); };
+  orbit(200, 30, R * 3.2); controls.target.set(0, TOP * 0.35, 0); controls.enableDamping = true; controls.update();
+  t = endT; setLbl();
+  const clock = new THREE.Clock();
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(clock.getDelta(), 0.1);
+    if (playing) { t += dt * speed * 8; if (t >= endT) { t = endT; playing = false; document.getElementById('play').textContent = '▶︎ Play'; } setLbl(); }
+    explode += (exT - explode) * Math.min(1, dt * 6);
+    pose(t);
+    controls.update(); render();
+  });
+  addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+}
+</script></body></html>

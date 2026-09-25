@@ -1,0 +1,21 @@
+{
+ "file": "pnoa_ma_010m.png",
+ "crs": "EPSG:25830",
+ "bbox_25830": [
+  437597.5,
+  4476902.68,
+  437757.5,
+  4477062.68
+ ],
+ "width": 1600,
+ "height": 1600,
+ "pixel_size_m": 0.1,
+ "native_resolution_m": 0.25,
+ "layer": "OI.OrthoimageCoverage",
+ "url": "https://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=OI.OrthoimageCoverage&STYLES=&CRS=EPSG:25830&BBOX=437597.5,4476902.68,437757.5,4477062.68&WIDTH=1600&HEIGHT=1600&FORMAT=image/png",
+ "building_center_25830": [
+  437677.5,
+  4476982.68
+ ],
+ "note": "PNOA máxima actualidad, vuelo 2023-07, resolución nativa 0.25 m (no ortoimagen verdadera); remuestreado por WMS a 0.1 m/px"
+}

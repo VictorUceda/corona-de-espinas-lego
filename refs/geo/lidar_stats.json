@@ -1,0 +1,183 @@
+{
+ "lidar_clip.laz": {
+  "source": [
+   "PNOA_2024_MAD_437-4477_H30_NPC02.LAZ",
+   "PNOA_2024_MAD_437-4478_H30_NPC02.LAZ"
+  ],
+  "serie": "LiDAR PNOA 3ª cobertura (2022-2025), vuelo 2024",
+  "bbox_25830": [
+   437597.5,
+   4476902.68,
+   437757.5,
+   4477062.68
+  ],
+  "crs": "EPSG:25830 (alturas ortométricas, geoide EGM08-REDNAP)",
+  "points": 164026,
+  "area_m2": 25600.0,
+  "density_pts_m2": 6.41,
+  "density_first_returns_m2": 5.0,
+  "density_last_returns_m2": 5.01,
+  "classes": {
+   "1": {
+    "name": "no clasificado",
+    "count": 241
+   },
+   "2": {
+    "name": "suelo",
+    "count": 82216
+   },
+   "3": {
+    "name": "vegetación baja",
+    "count": 3134
+   },
+   "4": {
+    "name": "vegetación media",
+    "count": 6955
+   },
+   "5": {
+    "name": "vegetación alta",
+    "count": 30106
+   },
+   "6": {
+    "name": "edificación",
+    "count": 39667
+   },
+   "7": {
+    "name": "ruido bajo",
+    "count": 14
+   },
+   "9": {
+    "name": "agua",
+    "count": 3
+   },
+   "64": {
+    "name": "código 64 no estándar ASPRS (definido por usuario/PNOA); puntos a cota de suelo (612-618 m), a 40-70 m del centro, fuera del edificio",
+    "count": 1690
+   }
+  },
+  "z_min": 609.554,
+  "z_max": 643.764,
+  "building_class6_within_38m": {
+   "count": 23205,
+   "density_m2": 5.12,
+   "z_p50": 632.928,
+   "z_p99": 642.63992
+  },
+  "ground_z_p50": 614.155,
+  "point_format": 8,
+  "las_version": "1.4",
+  "dims": [
+   "X",
+   "Y",
+   "Z",
+   "intensity",
+   "return_number",
+   "number_of_returns",
+   "synthetic",
+   "key_point",
+   "withheld",
+   "overlap",
+   "scanner_channel",
+   "scan_direction_flag",
+   "edge_of_flight_line",
+   "classification",
+   "user_data",
+   "scan_angle",
+   "point_source_id",
+   "gps_time",
+   "red",
+   "green",
+   "blue",
+   "nir"
+  ],
+  "withheld": 0,
+  "overlap": 0
+ },
+ "lidar_clip_2016.laz": {
+  "source": [
+   "PNOA_2016_MAD_437-4477_ORT-CLA-RGB.laz",
+   "PNOA_2016_MAD_437-4478_ORT-CLA-RGB.laz"
+  ],
+  "serie": "LiDAR PNOA 2ª cobertura, vuelo 2016",
+  "bbox_25830": [
+   437597.5,
+   4476902.68,
+   437757.5,
+   4477062.68
+  ],
+  "crs": "EPSG:25830",
+  "points": 63144,
+  "area_m2": 25600.0,
+  "density_pts_m2": 2.47,
+  "density_first_returns_m2": 2.38,
+  "density_last_returns_m2": 2.37,
+  "classes": {
+   "1": {
+    "name": "no clasificado",
+    "count": 95
+   },
+   "2": {
+    "name": "suelo",
+    "count": 12125
+   },
+   "3": {
+    "name": "vegetación baja",
+    "count": 5262
+   },
+   "4": {
+    "name": "vegetación media",
+    "count": 1287
+   },
+   "5": {
+    "name": "vegetación alta",
+    "count": 6135
+   },
+   "6": {
+    "name": "edificación",
+    "count": 7580
+   },
+   "7": {
+    "name": "ruido bajo",
+    "count": 635
+   },
+   "12": {
+    "name": "solape/reservado",
+    "count": 30025
+   }
+  },
+  "z_min": 609.41,
+  "z_max": 643.3000000000001,
+  "building_class6_within_38m": {
+   "count": 3671,
+   "density_m2": 0.81,
+   "z_p50": 632.88,
+   "z_p99": 641.753
+  },
+  "ground_z_p50": 614.14,
+  "point_format": 3,
+  "las_version": "1.2",
+  "dims": [
+   "X",
+   "Y",
+   "Z",
+   "intensity",
+   "return_number",
+   "number_of_returns",
+   "scan_direction_flag",
+   "edge_of_flight_line",
+   "classification",
+   "synthetic",
+   "key_point",
+   "withheld",
+   "scan_angle_rank",
+   "user_data",
+   "point_source_id",
+   "gps_time",
+   "red",
+   "green",
+   "blue"
+  ],
+  "withheld": 0,
+  "overlap": null
+ }
+}

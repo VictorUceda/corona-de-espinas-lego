@@ -1,0 +1,355 @@
+{
+ "nombre": "Corona de Espinas — sede del IPCE (Higueras & Miró, 1965-1989)",
+ "direccion": "C/ Pintor El Greco 4, 28040 Madrid",
+ "unidades": "m; azimut desde norte de cuadrícula (UTM30N), sentido horario; h sobre terreno exterior",
+ "sitio": {
+  "centro_epsg25830": [
+   437677.5,
+   4476982.68
+  ],
+  "centro_latlon": [
+   40.441159,
+   -3.734864
+  ],
+  "cota_terreno_msnm": 614.22,
+  "datum_proyecto_h": 1.25,
+  "ref_catastral": "7773607VK3777D",
+  "fuente": "ajuste de circulo a huella Catastro + ortofoto PNOA 2023 + LiDAR PNOA 2024"
+ },
+ "modulacion": {
+  "gajos_principales": 30,
+  "modulos_teoricos": 60,
+  "modulos_en_fachada": 56,
+  "porticos_principales": 56,
+  "angulo_modulo_deg": 6.0,
+  "fase_nervios_deg": 0.3,
+  "modulos_suprimidos_entrada": 4,
+  "nota": "Los datos fijos decian '4 gajos eliminados'; BOE y COAM dicen 4 MODULOS (=2 gajos) ocupados por la escalera de acceso. El LiDAR lo confirma: hueco de 24 deg.",
+  "fuente": "BOE 287/2001 RD 1261/2001; AHDB ETSAM Fondo Miro (planos originales); COAM Arquitectura 299 (1994); LiDAR 2024 (espaciado medio 6.0 deg)"
+ },
+ "entrada": {
+  "eje_azimut_deg": 186.3,
+  "nervios_sin_espina_deg": [
+   174.3,
+   180.3,
+   186.3,
+   192.3,
+   198.3
+  ],
+  "hueco_fachada_deg": [
+   174.3,
+   198.3
+  ],
+  "canon_ancho_m": 14.0,
+  "canon_lados": "paralelos entre r=22 y r=34; testeros abocinados hacia fuera (r>36)",
+  "testeros": "muros ciegos trapezoidales de hormigon hasta la corona (h~27), con 1-2 espinas en coronacion",
+  "puentes": "dos pasarelas-balcon (plantas 2a y 3a) cruzan el canon en r~20-30, con barandilla en cubierta",
+  "escalera": "escalinata exterior que sube por el canon hasta la plaza del claustro",
+  "fuente": "LiDAR (huecos por radio/altura), fotos commons: Entrada_del_Instituto_del_Patrimonio_Cultural_de_España,_Madrid.JPG, Instituto_del_Patrimonio_Histórico_Español_(Madrid)_02.jpg, Instituto_del_Patrimonio_Histórico_Español_(Madrid)_11.jpg"
+ },
+ "radios": {
+  "voladizo_max_balcones": 41.5,
+  "canto_balcones": 40.5,
+  "fachada_pb_catastro": 38.0,
+  "planta_ultima_pie": 41.0,
+  "planta_ultima_cabeza": 38.3,
+  "canalon_exterior": 38.0,
+  "cumbrera_corona": 32.0,
+  "espinas": 31.5,
+  "canalon_interior": 26.0,
+  "borde_claustro": 21.0,
+  "cupula_central": 9.5,
+  "circulo_teorico": 40.0,
+  "fuente": "LiDAR perfil radial; Catastro r=37.98 (huella PB); BOE 'circulo de unos 40 m de radio'"
+ },
+ "niveles": [
+  {
+   "id": "sotano",
+   "cota_proyecto": -5.6,
+   "h": -4.35,
+   "nota": "solo bajo parte del anillo (713 m2 Catastro)"
+  },
+  {
+   "id": "exterior_bajo",
+   "cota_proyecto": -1.75,
+   "h": -0.5
+  },
+  {
+   "id": "PB",
+   "cota_proyecto": 0.0,
+   "h": 1.25,
+   "radio_fachada": 38.0,
+   "nota": "retranqueada, celosia blanca, pilares con tornapuntas en Y"
+  },
+  {
+   "id": "P1",
+   "cota_proyecto": 3.9,
+   "h": 5.15,
+   "radio_voladizo": 40.5,
+   "canto_voladizo_h": 7.3
+  },
+  {
+   "id": "P2",
+   "cota_proyecto": 7.8,
+   "h": 9.05,
+   "radio_voladizo": 41.5,
+   "canto_voladizo_h": 10.8
+  },
+  {
+   "id": "P3",
+   "cota_proyecto": 11.7,
+   "h": 12.95,
+   "radio_voladizo": 41.5,
+   "canto_voladizo_h": 14.5,
+   "nota": "ultima planta: fachada inclinada hacia dentro de r41.0/h14.5 a r38.3/h18.6"
+  },
+  {
+   "id": "cubierta_P3",
+   "cota_proyecto": 15.6,
+   "h": 16.85
+  },
+  {
+   "id": "canalon",
+   "h": 18.7
+  },
+  {
+   "id": "cumbrera",
+   "h": 24.5
+  },
+  {
+   "id": "coronacion_corona",
+   "h": 27.0
+  },
+  {
+   "id": "punta_espinas",
+   "h": 29.5
+  },
+  {
+   "id": "plaza_claustro",
+   "h": 15.2,
+   "nota": "terraza abierta sobre el atrio, con lucernarios"
+  },
+  {
+   "id": "cupula_claustro_max",
+   "h": 17.5
+  }
+ ],
+ "altura_planta_m": 3.9,
+ "seccion_exterior": {
+  "desc": "perfil (r,h) del anillo, de fuera a dentro, fuera de la entrada",
+  "puntos": [
+   [
+    41.5,
+    14.5
+   ],
+   [
+    41.0,
+    14.5
+   ],
+   [
+    38.3,
+    18.6
+   ],
+   [
+    38.0,
+    19.3
+   ],
+   [
+    37.0,
+    18.6
+   ],
+   [
+    32.0,
+    24.5
+   ],
+   [
+    26.0,
+    18.8
+   ],
+   [
+    21.0,
+    18.8
+   ],
+   [
+    21.0,
+    15.2
+   ],
+   [
+    9.5,
+    15.2
+   ],
+   [
+    0.0,
+    17.5
+   ]
+  ],
+  "cubierta": "dos aguas ~50 deg a ambos lados de la cumbrera r=32; faldon exterior con malla gris y lucernarios semi-hexagonales blancos (uno por modulo) junto al canalon; faldon interior con teja oscura y lucernarios iguales",
+  "fuente": "LiDAR 2024 + 2016 (work/section_lidar.png)"
+ },
+ "espinas": {
+  "n": 55,
+  "posicion": "sobre cada nervio radial, en la cumbrera r~31.5",
+  "forma": "piramide de 4 caras blanca (lucernario de poliester/chapa) sobre pilastra de hormigon; entre espinas el muro de corona hace una W con vertiente blanca",
+  "base_ancho_m": 3.0,
+  "h_base": 24.5,
+  "h_punta": 29.5,
+  "fuente": "LiDAR (54 picos detectados, espaciado 6.0 deg, hueco de 5 en la entrada) + foto commons: Agujas_del_inmueble_sede_del_Instituto_del_Patrimonio_Cultural_de_España.JPG",
+  "azimutes_deg": [
+   0.3,
+   6.3,
+   12.3,
+   18.3,
+   24.3,
+   30.3,
+   36.3,
+   42.3,
+   48.3,
+   54.3,
+   60.3,
+   66.3,
+   72.3,
+   78.3,
+   84.3,
+   90.3,
+   96.3,
+   102.3,
+   108.3,
+   114.3,
+   120.3,
+   126.3,
+   132.3,
+   138.3,
+   144.3,
+   150.3,
+   156.3,
+   162.3,
+   168.3,
+   204.3,
+   210.3,
+   216.3,
+   222.3,
+   228.3,
+   234.3,
+   240.3,
+   246.3,
+   252.3,
+   258.3,
+   264.3,
+   270.3,
+   276.3,
+   282.3,
+   288.3,
+   294.3,
+   300.3,
+   306.3,
+   312.3,
+   318.3,
+   324.3,
+   330.3,
+   336.3,
+   342.3,
+   348.3,
+   354.3
+  ]
+ },
+ "claustro": {
+  "tipo": "plaza-terraza abierta a h~15 sobre atrio cubierto (vidrio desde la rehabilitacion); 'claustro porticado' en el interior",
+  "radio": 21.0,
+  "cupula": {
+   "radio": 9.5,
+   "fuente": "plano 56 AHDB MIRO_002caP_T003_001 (acotado: cercha 785+165 cm); ortofoto da ~8.7-9",
+   "forma": "estrella de vidrio de ~32 facetas con linterna central",
+   "h": 17.5
+  },
+  "alas_lucernario": {
+   "n": 6,
+   "azimutes_deg": [
+    6.3,
+    66.3,
+    126.3,
+    186.3,
+    246.3,
+    306.3
+   ],
+   "ancho_deg": 22,
+   "r": [
+    10,
+    20
+   ],
+   "forma": "dientes de sierra radiales de vidrio"
+  },
+  "patios_laterales": 5,
+  "casetones": "10-12 casetones blancos de ventilacion (rejillas) en la plaza",
+  "fuente": "ortofoto (desenrollado polar), fotos commons: Cubierta_o_terraza_de_la_sede_del_Instituto_del_Patrimonio_Cultural_de_España,_en_Madrid.jpg, Instituto_del_Patrimonio_Histórico_Español_(Madrid)_04.jpg, Instituto_del_Patrimonio_Histórico_Español_(Madrid)_08.jpg"
+ },
+ "fachada": {
+  "pb": "retranqueada; celosia blanca de hormigon prefabricado entre pilares; tornapuntas en Y bajo el voladizo de P1",
+  "p1_p3": "voladizos corridos facetados (un tramo recto por modulo, 6 deg) con aletas verticales en cada nervio; frentes de balcon trapezoidales; ventanas con persiana enrollable gris claro",
+  "ultima": "P3 inclinada hacia dentro con jabalcones diagonales en cada nervio que suben hasta el canalon",
+  "modulo_alzado_original": "AHDB MIRO_002jP_CR005-02_014: por modulo PB con puertas/celosia, 2 filas de ventanas en triplete, planta ultima inclinada con ventanas, faldon de teja (escamas), y remate en V con lucernario y dos brazos que suben a las espinas de los nervios",
+  "cantos": "barandilla metalica ligera en canalon y en plaza"
+ },
+ "materiales_color": {
+  "hormigon_visto": {
+   "hex_muestras": [
+    "#a29c96",
+    "#8c8a87",
+    "#7b786e",
+    "#6a6761"
+   ],
+   "lego": "Light Bluish Gray (71) / Dark Bluish Gray (72)"
+  },
+  "espinas_y_lucernarios": {
+   "hex": "#dadde3",
+   "lego": "White (15)"
+  },
+  "persianas": {
+   "hex": "#a5a7ac",
+   "lego": "Light Bluish Gray / White"
+  },
+  "vidrio": {
+   "lego": "Trans-Clear (47) / Trans-Black (40)"
+  },
+  "cubierta_faldones": {
+   "hex": "#707273",
+   "lego": "Dark Bluish Gray (72)"
+  },
+  "encofrado": "tabla de 8 cm (textura horizontal)"
+ },
+ "superficies": {
+  "parcela_m2": 12405,
+  "huella_m2": 4536,
+  "construida_m2": 16774,
+  "por_planta_m2": {
+   "sotano": 713,
+   "PB": 4508,
+   "P1": 3907,
+   "P2": 3706,
+   "P3": 3706,
+   "P4": 234
+  }
+ },
+ "cronologia": {
+  "concurso": 1961,
+  "proyecto": 1965,
+  "inicio_obras": 1966,
+  "fin": 1989,
+  "BIC": "RD 1261/2001"
+ },
+ "planos_clave": [
+  "refs/planos/ahdb/MIRO_002aaP_T003_001.jpg (planta 3a 1:100 + seccion corona)",
+  "refs/planos/ahdb/MIRO_002jP_CR005-02_014.jpg (alzado 4 modulos)",
+  "refs/planos/ahdb/MIRO_002caP_T003_001.jpg (cupula acotada)",
+  "refs/planos/coam299_p69_planta_baja_seccion_cotas.jpg (cotas de nivel)",
+  "refs/planos/metalocus-coronadeespinas-ohm16-24.jpg (planta con escala grafica)"
+ ],
+ "discrepancias_con_datos_fijos": [
+  "Diametro: 80 m nominal (circulo teorico r=40). Medido: 83 m en voladizos de balcones, 76 m en PB (Catastro).",
+  "Entrada: se suprimen 4 MODULOS (2 gajos, 24 deg), no 4 gajos.",
+  "55 espinas confirmado: 60 nervios menos 5 (3 dentro del hueco + los 2 testeros).",
+  "4 plantas = PB+P1+P2+P3; la 'fachada inclinada' es la de la P3 (ultima). Catastro lista una P4 residual de 234 m2 (cuartos en la corona).",
+  "El 'claustro central' no es un patio a cota 0 sino una plaza elevada (h~15) con lucernarios sobre un atrio cubierto.",
+  "Espinas: los planos (subagente) dan punta ~+25..+27 sobre ±0.00; el LiDAR da h 29.5 (= +28.25). Se usa LiDAR.",
+  "El hormigon visto en las fotos es gris neutro-calido; las espinas y lucernarios son BLANCOS, no de hormigon."
+ ]
+}

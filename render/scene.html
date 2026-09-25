@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>render</title>
+<style>html,body{margin:0;background:#cfe6f7;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/render/node_modules/three/build/three.module.js","three/addons/":"/render/node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+import { LDrawConditionalLineMaterial } from 'three/addons/materials/LDrawConditionalLineMaterial.js';
+
+// Query: model, w, h, az (deg, from +Z toward +X), el (deg), fov (0 = ortho), dist (scale), bg, highlight (comma list of step idx?)
+const q = new URLSearchParams(location.search);
+const W = +q.get('w') || 1200, H = +q.get('h') || 900;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.shadowMap.enabled = q.get('shadows') !== '0'; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NoToneMapping;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(q.get('bg') || '#cfe6f7');
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f99, 2.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.castShadow = true; scene.add(sun);
+
+const loader = new LDrawLoader();
+loader.setConditionalLineMaterial(LDrawConditionalLineMaterial);
+loader.setPartsLibraryPath('/tools/ldraw/');
+await loader.preloadMaterials('/tools/ldraw/LDConfig.ldr');
+loader.smoothNormals = true;
+const text = await (await fetch(q.get('model'))).text();
+const group = await new Promise((res, rej) => loader.parse(text, res, rej));
+group.rotation.x = Math.PI; // LDraw -Y up
+scene.add(group);
+group.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } if (o.isLineSegments) o.visible = q.get('edges') !== '0'; });
+const box = new THREE.Box3().setFromObject(group), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+const R = sz.length() / 2;
+const az = THREE.MathUtils.degToRad(+(q.get('az') ?? 35)), el = THREE.MathUtils.degToRad(+(q.get('el') ?? 30));
+const dir = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+const fov = +(q.get('fov') ?? 0), zoom = +(q.get('zoom') ?? 1);
+let cam;
+if (fov > 0) { cam = new THREE.PerspectiveCamera(fov, W / H, R / 100, R * 50); cam.position.copy(c).addScaledVector(dir, R / Math.sin(THREE.MathUtils.degToRad(fov / 2)) / zoom); }
+else { const s = R / zoom, a = W / H; cam = new THREE.OrthographicCamera(-s * a, s * a, s, -s, -R * 10, R * 10); cam.position.copy(c).addScaledVector(dir, R * 3); }
+if (q.get('target')) { const t = q.get('target').split(',').map(Number); c.set(t[0], -t[1], -t[2]); }
+cam.lookAt(c);
+sun.position.copy(c).add(new THREE.Vector3(R * 1.2, R * 2.5, R * 1.6)); sun.target.position.copy(c); scene.add(sun.target);
+Object.assign(sun.shadow.camera, { left: -R * 1.5, right: R * 1.5, top: R * 1.5, bottom: -R * 1.5, near: 1, far: R * 8 });
+sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0004;
+renderer.render(scene, cam);
+window.RENDER_DONE = { box: [box.min.toArray(), box.max.toArray()] };
+</script></body></html>
